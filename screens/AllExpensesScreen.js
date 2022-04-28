@@ -10,11 +10,16 @@ import ExpenseItem from '../components/ExpenseItem';
 import TotalExpense from '../components/TotalExpense';
 import ExpenseList from '../components/ExpenseList';
 import EmptyRecord from '../components/EmptyRecord';
+import moment from 'moment';
+
+
 
 function AllExpensesScreen() {
     const navigation = useNavigation();
     const expenseList = useSelector((state) => state.expensesRdx.expenseList);
     const totalExpense = useSelector((state) => state.expensesRdx.total);
+
+    const sortedList = expenseList.slice().sort((a,b) => moment(b.date, 'DD/MM/YYYY')-moment(a.date, 'DD/MM/YYYY'));
 
     function onPressHandler() {
         navigation.navigate('ManageExpense');
@@ -37,8 +42,8 @@ function AllExpensesScreen() {
             <View style={styles.expenseContainer}>
                 <TotalExpense value={totalExpense} />
                 {
-                    (expenseList.length > 0) ? 
-                    <ExpenseList data={expenseList} /> :
+                    (sortedList.length > 0) ? 
+                    <ExpenseList data={sortedList} /> :
                     <EmptyRecord/>
                 }
             </View>

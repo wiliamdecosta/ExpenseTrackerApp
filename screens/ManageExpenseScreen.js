@@ -108,11 +108,11 @@ function ManageExpenseScreen() {
     function validateForm() {
         let errorMessage = '';
         if(expenseTitle == '') {
-            errorMessage += "\n- Expense Title is empty";
+            errorMessage += "\n- Expense Description must be filled";
         }
 
         if(expenseCost == '') {
-            errorMessage += "\n- Expense Cost is empty";
+            errorMessage += "\n- Expense Cost must be filled";
         }else {
             let val = parseInt(expenseCost);
             if(val <= 0) {
@@ -121,7 +121,7 @@ function ManageExpenseScreen() {
         }
 
         if(expenseDate == '') {
-            errorMessage += "\n- Expense Date is empty";
+            errorMessage += "\n- Expense Date must be filled";
         }
 
         return errorMessage;
@@ -201,14 +201,14 @@ function ManageExpenseScreen() {
                         maxLength={8}
                         onChangeText={onChangeExpenseCost}
                         placeholder='Your Expense in Rupiah (e.g 50000)'
-                        style={styles.textInput}
+                        style={[styles.textInput]}
                         value={expenseCost}
                         keyboardType='decimal-pad'
                     />
                                        
                     <FieldTitle title="Date :" />
                     <Pressable onPress={showDatePicker}>
-                        <Text style={styles.textInput}
+                        <Text style={[styles.textInput, {width:120, textAlign: 'center'}]}
                             >{expenseDate}</Text>
                     </Pressable>
                     {datePickerVisible && (
@@ -269,6 +269,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 8,
         marginBottom: 10,
+        color: '#4f4f4f'
     },
 
     buttonsContainer: {

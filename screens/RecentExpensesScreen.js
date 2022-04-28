@@ -16,16 +16,17 @@ import moment from 'moment';
 function getRecentExpensesList(list, days) {
     const today = moment();
     const nDaysBefore = moment().subtract(days, 'days');
-    console.log(nDaysBefore);
 
     let theDate;
-    const recentList = list.filter((expense) => {
+    let recentList = list.filter((expense) => {
         theDate = moment(expense.date, 'DD/MM/YYYY');
-        console.log(theDate);
         return theDate.isBetween(nDaysBefore, today, 'day','[]');
     });
 
-    return recentList;
+    //sort the list
+    const sortedList = recentList.slice().sort((a,b) => moment(b.date, 'DD/MM/YYYY')-moment(a.date, 'DD/MM/YYYY'));
+
+    return sortedList;
 }
 
 const LAST_DAY = 5;

@@ -58,12 +58,14 @@ const styles = StyleSheet.create({
 
     itemTitle: {
         fontFamily: 'poppins-bold',
-        color: 'white'
+        color: 'white',
+        fontSize:15,
     },
 
     itemDate: {
         fontFamily: 'poppins',
-        color: 'white'
+        color: 'yellow',
+        fontSize:11,
     },
 
     costContainer: {
