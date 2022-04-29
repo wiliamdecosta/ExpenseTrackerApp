@@ -10,7 +10,7 @@ export default FieldTitle;
 
 const styles = StyleSheet.create({
     title: {
-        color: 'yellow',
+        color: 'white',
         fontFamily: 'poppins',
         fontSize: 14,
         marginBottom:2,

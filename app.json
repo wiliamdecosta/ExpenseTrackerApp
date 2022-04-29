@@ -7,8 +7,7 @@
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/wallet.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#3618b8"
+      "backgroundColor": "#1e63e9"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

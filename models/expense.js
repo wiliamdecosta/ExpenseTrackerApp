@@ -5,6 +5,14 @@ class Expense {
         this.cost = cost;
         this.date = date;
     }
+
+    toJson() {
+        return {
+            title: this.title,
+            cost: this.cost,
+            date: this.date,
+        };
+    }
 }
 
 export default Expense;

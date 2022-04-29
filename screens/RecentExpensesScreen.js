@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#28137c',
+        backgroundColor: '#1e63e9',
     },
 
     expenseContainer: {

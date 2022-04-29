@@ -10,10 +10,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 function AppNavigation() {
     const Stack = createNativeStackNavigator();
     const headerStyles = {
-        headerStyle: { backgroundColor: '#3618b8' },
+        headerStyle: { backgroundColor: '#2c387e' },
         headerTitleStyle: { fontFamily: 'poppins' },
         headerTintColor: 'white',
-        contentStyle: { backgroundColor: '#28137c' },
+        contentStyle: { backgroundColor: '#1e63e9' },
         animation: 'none',
     };
 
@@ -40,13 +40,13 @@ function ExpenseOverview() {
     const BottomTabs = createBottomTabNavigator();
 
     const headerStyles = {
-        headerStyle: { backgroundColor: '#3618b8' },
+        headerStyle: { backgroundColor: '#2c387e' },
         headerTitleStyle: { fontFamily: 'poppins' },
         headerTintColor: 'white',
         tabBarStyle: {
-            backgroundColor: '#3618b8',
+            backgroundColor: '#2c387e',
         },
-        tabBarActiveTintColor: '#e7ab64',
+        tabBarActiveTintColor: 'yellow',
         tabBarInactiveTintColor: 'white',
     };
 

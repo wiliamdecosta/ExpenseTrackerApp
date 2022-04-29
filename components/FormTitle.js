@@ -10,10 +10,10 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: 'poppins-bold',
         fontSize: 18,
-        color: '#e0d4fc',
+        color: 'yellow',
         textAlign: 'center',
         borderBottomWidth: 3,
-        borderBottomColor: '#e0d4fc',
+        borderBottomColor: 'yellow',
         marginBottom: 15,
     },
 });

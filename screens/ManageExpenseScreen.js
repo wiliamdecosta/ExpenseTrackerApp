@@ -15,11 +15,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import {useDispatch, useSelector} from 'react-redux';
 import Expense from '../models/expense';
-import {addExpense, updateExpense, removeExpense} from '../redux/expenses';
+import {removeExpense, setExpenses} from '../redux/expenses';
 import moment from 'moment';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import FieldTitle from '../components/FieldTitle';
 import NumberFormat from 'react-number-format';
+import { fetchExpenses, storeExpense, updateExpense, deleteExpense } from '../services/expenseServices';
+import SnackBar from 'react-native-snackbar-component';
 
 function ManageExpenseScreen() {
     const navigation = useNavigation();
@@ -27,14 +29,14 @@ function ManageExpenseScreen() {
 
     const route = useRoute();
     const params = route.params;
-    const expenseId = params === undefined ? 0 : params.id;
+    const expenseId = params === undefined ? '' : params.id;
 
     let myExpense;
     let initTitle = '';
     let initCost = '';
     let initDate = '';
 
-    if(expenseId !== 0) { //edit mode
+    if(expenseId !== '') { //edit mode
         const myExpenseList = useSelector((state) => state.expensesRdx.expenseList);
         myExpense = myExpenseList.find((expense) => expense.id === expenseId);
 
@@ -45,8 +47,8 @@ function ManageExpenseScreen() {
         }
     }
 
-    const [currentDate, setCurrentDate] = useState(expenseId !== 0 ? initDate : moment(new Date()).format('DD/MM/YYYY'));
-    const [nowDate, setNowDate] = useState(expenseId !== 0 ? moment(initDate,'DD/MM/YYYY').toDate() : new Date());
+    const [currentDate, setCurrentDate] = useState(expenseId !== '' ? initDate : moment(new Date()).format('DD/MM/YYYY'));
+    const [nowDate, setNowDate] = useState(expenseId !== '' ? moment(initDate,'DD/MM/YYYY').toDate() : new Date());
 
     //Untuk Form
     const [expenseTitle, setTitle] = useState(initTitle);
@@ -54,14 +56,19 @@ function ManageExpenseScreen() {
     const [expenseDate, setDate] = useState(currentDate);
     const [datePickerVisible, setDatePickerVisible] = useState(false);
     
-    
+    //snackbar
+    const [snackBarVisible, setSnackBarVisible] = useState(false);
+
     function onDeleteExpenseHandler() {
         Alert.alert("Confirmation", "Are you sure to delete this expense?",[
             {text: 'Cancel', style: "cancel"},
-            {text: 'Yes, I am sure', onPress:() => {
-
-                    dispatch(removeExpense({id: expenseId}));
-                    navigation.goBack();
+            {text: 'Yes, I am sure', onPress: async () => {
+                    //add data and get all expenses
+                    await deleteExpense(myExpense.id).then(async (val) => {
+                        const expenses = await fetchExpenses();
+                        dispatch(setExpenses(expenses));
+                        navigation.goBack();
+                    });           
                 },
             },
         ]);
@@ -69,7 +76,7 @@ function ManageExpenseScreen() {
     }
 
     useLayoutEffect(() => {
-        if(expenseId !== 0) {
+        if(expenseId !== '') {
             navigation.setOptions({
                 headerRight: () => {
                     return <Ionicons 
@@ -127,7 +134,7 @@ function ManageExpenseScreen() {
         return errorMessage;
     }
 
-    function onAddPressHandler() {
+    async function onAddPressHandler() {
         
         const errorMessage = validateForm();
         
@@ -135,18 +142,25 @@ function ManageExpenseScreen() {
             Alert.alert("Please check your input",errorMessage);
             return;
         }
-        
-        dispatch(addExpense(new Expense(
+
+        const newExpense = new Expense(
             null,
             expenseTitle,
             parseInt(expenseCost),
             expenseDate,
-        )));
+        );
 
-        resetForm();
+        //add data and get all expenses
+        await storeExpense(newExpense.toJson()).then(async (val) => {
+            const expenses = await fetchExpenses();
+            dispatch(setExpenses(expenses));
+            resetForm();
+            if(snackBarVisible) setSnackBarVisible(false);
+            setSnackBarVisible(true);
+        });
     }
 
-    function onUpdatePressHandler() {
+    async function onUpdatePressHandler() {
         const errorMessage = validateForm();
         
         if(errorMessage !== ''){
@@ -161,9 +175,12 @@ function ManageExpenseScreen() {
             expenseDate,
         );
 
-        dispatch(updateExpense({id:myExpense.id, item: newExpense}));
-
-        navigation.goBack();
+        //update data and get all expenses
+        await updateExpense(newExpense.id, newExpense.toJson()).then(async (val) => {
+            const expenses = await fetchExpenses();
+            dispatch(setExpenses(expenses));
+            navigation.goBack();
+        });
     }
 
     function showDatePicker() {
@@ -182,43 +199,52 @@ function ManageExpenseScreen() {
     }
 
     return (
+        <>
         <ScrollView>
         <View style={styles.screen}>
             <View style={styles.formContainer}>
-                <FormTitle> {(expenseId != 0) ? 'Edit' : 'Add'} Your Expense : </FormTitle>
+                <FormTitle> {(expenseId != '') ? 'Edit' : 'Add'} Your Expense : </FormTitle>
                 <View style={styles.inputContainer}>
+                    
+                    <View style={styles.rowContainer}>
+                        <View style={{flex:1, marginRight:5}}>
+                            <FieldTitle title="Amount (Rp.) : " />
+                            <TextInput
+                                maxLength={8}
+                                onChangeText={onChangeExpenseCost}
+                                placeholder='Amount (e.g 50000)'
+                                style={[styles.textInput]}
+                                value={expenseCost}
+                                keyboardType='decimal-pad'
+                            />
+                        </View>
+
+                        <View style={{flex:1, marginLeft:5}}>
+                            <FieldTitle title="Date :" />
+                            <Pressable onPress={showDatePicker}>
+                                <Text style={[styles.textInput, {textAlign: 'center', paddingVertical: 10}]}
+                                    >{expenseDate}</Text>
+                            </Pressable>
+                            {datePickerVisible && (
+                                <DateTimePicker
+                                    value={nowDate}
+                                    mode='date'
+                                    is24Hour={false}
+                                    onChange={onChangeDatePicker}
+                                />
+                            )}
+                        </View>
+                    </View>
+
                     <FieldTitle title="Description :" />
                     <TextInput
-                        maxLength={50}
+                        multiline={true}
+                        numberOfLines={3}
+                        maxLength={200}
                         onChangeText={onChangeExpenseTitle}
-                        placeholder='Enter your description (e.g "Buy Hambuger")'
                         style={styles.textInput}
                         value={expenseTitle}
                     />
-
-                    <FieldTitle title="Expense (Rp.) : " />
-                    <TextInput
-                        maxLength={8}
-                        onChangeText={onChangeExpenseCost}
-                        placeholder='Your Expense in Rupiah (e.g 50000)'
-                        style={[styles.textInput]}
-                        value={expenseCost}
-                        keyboardType='decimal-pad'
-                    />
-                                       
-                    <FieldTitle title="Date :" />
-                    <Pressable onPress={showDatePicker}>
-                        <Text style={[styles.textInput, {width:120, textAlign: 'center'}]}
-                            >{expenseDate}</Text>
-                    </Pressable>
-                    {datePickerVisible && (
-                        <DateTimePicker
-                            value={nowDate}
-                            mode='date'
-                            is24Hour={false}
-                            onChange={onChangeDatePicker}
-                        />
-                    )}
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.button}>
@@ -230,15 +256,22 @@ function ManageExpenseScreen() {
                     </View>
                     <View style={styles.button}>
                         <TextButton
-                            title={expenseId != 0 ? 'Update':'Save'}
+                            title={expenseId != '' ? 'Update':'Save'}
                             backgroundColor='#71de5e'
-                            onPress={expenseId != 0 ? onUpdatePressHandler : onAddPressHandler}
+                            onPress={expenseId != '' ? onUpdatePressHandler : onAddPressHandler}
                         />
                     </View>
                 </View>
             </View>
         </View>
         </ScrollView>
+        <SnackBar visible={snackBarVisible} 
+                textMessage="Add expense success!" 
+                messageColor='yellow'
+                autoHidingTime={2000}
+                position='top'
+                />
+        </>
     );
 }
 
@@ -269,7 +302,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 8,
         marginBottom: 10,
-        color: '#4f4f4f'
+        color: '#4f4f4f',
+        textAlignVertical: 'top'
     },
 
     buttonsContainer: {
@@ -281,6 +315,10 @@ const styles = StyleSheet.create({
     button: {
         flex: 1,
         marginHorizontal: 5,
+    },
+
+    rowContainer: {
+        flexDirection: 'row',
     },
 
 });

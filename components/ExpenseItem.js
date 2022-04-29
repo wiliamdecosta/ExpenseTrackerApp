@@ -39,7 +39,7 @@ export default ExpenseItem;
 
 const styles = StyleSheet.create({
     expenseItemContainer: {
-        backgroundColor: '#3618b8',
+        backgroundColor: '#4f5682',
         borderRadius: 10,
         marginTop: 10,
     },
@@ -58,13 +58,13 @@ const styles = StyleSheet.create({
 
     itemTitle: {
         fontFamily: 'poppins-bold',
-        color: 'white',
+        color: 'yellow',
         fontSize:15,
     },
 
     itemDate: {
         fontFamily: 'poppins',
-        color: 'yellow',
+        color: 'white',
         fontSize:11,
     },
 
